@@ -565,8 +565,8 @@ namespace RuntimeInspectorNamespace
 						continue;
 
 					// Skip non-serializable types
-					if( !property.PropertyType.IsSerializable() )
-						continue;
+					//if( !property.PropertyType.IsSerializable() )
+					//	continue;
 
 					// Skip obsolete or hidden properties
 					if( property.HasAttribute<ObsoleteAttribute>() || property.HasAttribute<NonSerializedAttribute>() || property.HasAttribute<HideInInspector>() )

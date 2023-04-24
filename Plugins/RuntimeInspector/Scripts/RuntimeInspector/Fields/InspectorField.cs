@@ -284,7 +284,10 @@ namespace RuntimeInspectorNamespace
 		private Image expandArrow; // Expand Arrow's sprite should look right at 0 rotation
 #pragma warning restore 0649
 
-		protected readonly List<InspectorField> elements = new List<InspectorField>( 8 );
+		protected readonly List<InspectorField> elements = new List<InspectorField>(8);
+
+		protected readonly List<InspectorField> elements1 = new List<InspectorField>(8);
+
 		protected readonly List<ExposedMethodField> exposedMethods = new List<ExposedMethodField>();
 
 		protected virtual int Length { get { return elements.Count; } }
@@ -472,6 +475,7 @@ namespace RuntimeInspectorNamespace
 				exposedMethods[i].Unbind();
 
 			elements.Clear();
+			elements1.Clear();
 			exposedMethods.Clear();
 		}
 
@@ -489,6 +493,14 @@ namespace RuntimeInspectorNamespace
 					if( elements[i].ShouldRefresh )
 						elements[i].Refresh();
 				}
+
+				for(int i=0;i<elements1.Count;i++)
+                {
+					if(elements1[i].ShouldRefresh)
+                    {
+						elements1[i].Refresh();
+                    }
+                }
 			}
 		}
 
