@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
+using System.Linq;
 
 namespace RuntimeInspectorNamespace
 {
@@ -108,13 +109,15 @@ namespace RuntimeInspectorNamespace
 			base.ClearElements();
 		}
 
+		readonly static string cFakeFake = "_Fake_Fake_";
+
 		protected override void GenerateElements()
 		{
 			if( Value == null )
 				return;
 
 			IDictionary dict = (IDictionary) Value;
-			foreach(DictionaryEntry k_v in dict)
+			for(int i_key=0;i_key<dict.Keys.Count;i_key++)
             {
 				InspectorField keyDrawer = Inspector.CreateDrawerForType(keyType, drawArea, Depth + 1);
 				if(keyDrawer == null)
@@ -122,22 +125,82 @@ namespace RuntimeInspectorNamespace
 					break;
                 }
 
+				StringField key_str_field = keyDrawer as StringField;
+				if(key_str_field!=null)
+                {
+					key_str_field.SetterMode = StringField.Mode.OnSubmit;
+                }
+
 				InspectorField valDrawer = Inspector.CreateDrawerForType(valType, drawArea, Depth + 1);
 				if(valDrawer == null)
                 {
 					break;
                 }
-
-				keyDrawer.BindTo(keyType, "key", () => k_v.Key, value =>
+				StringField val_str_field = valDrawer as StringField;
+				if (val_str_field != null)
 				{
-					//不修改Key
+					val_str_field.SetterMode = StringField.Mode.OnSubmit;
+				}
+
+				int saved_key_idx = i_key;
+
+				keyDrawer.BindTo(keyType, "key", 
+				() =>
+				{
+					var key_list = dict.Keys as IEnumerable<string>;
+					if(key_list != null)
+                    {
+						return key_list.ElementAt(saved_key_idx);
+                    }
+					else
+                    {
+						return null;
+                    }
+				},
+				value =>
+				{
+					var key_list = dict.Keys as IEnumerable<string>;
+					if (key_list != null)
+					{
+						string old_key = key_list.ElementAt(saved_key_idx);
+						string new_key = value as string;
+
+						if (old_key != null && new_key != null)
+						{
+							if (old_key.Contains(cFakeFake))
+							{
+								var old_val = dict[old_key];
+								dict[new_key] = old_val;
+								dict.Remove(old_key);
+								Value = dict;
+							}
+						}
+					}
 				});
 
-				valDrawer.BindTo(valType, "val", () => k_v.Value, value =>
+				valDrawer.BindTo(valType, "val", 
+				() =>
+				{
+					var key_list = dict.Keys as IEnumerable<string>;
+					if (key_list != null)
+					{
+						var key = key_list.ElementAt(saved_key_idx);
+						return dict[key];
+					}
+					else
+					{
+						return null;
+					}
+				},
+				value =>
 			    {
-					IDictionary _dict = (IDictionary)Value;
-					_dict[k_v.Key] = value;
-					Value = _dict;
+					var key_list = dict.Keys as IEnumerable<string>;
+					if (key_list != null)
+					{
+						var key = key_list.ElementAt(saved_key_idx);
+						dict[key] = value;
+						Value = dict;
+					}
 			    });
 
 				elements.Add(keyDrawer);
@@ -162,14 +225,40 @@ namespace RuntimeInspectorNamespace
 			return false;
 		}
 
-		private bool OnSizeChanged( BoundInputField source, string input )
-		{			
-			return false;
-		}
-
-		private object GetTemplateElement( object value )
+		private bool OnSizeChanged(BoundInputField source, string input)
 		{
-			return null;
+			int value;
+			if (int.TryParse(input, NumberStyles.Integer, RuntimeInspectorUtils.numberFormat, out value) && value >= 0)
+			{
+				int delta_len = value - Length;
+				if (delta_len > 0)
+				{
+					IDictionary dict = (IDictionary)Value;
+					DictionaryEntry last_k_v;
+					foreach (DictionaryEntry k_v in dict)
+					{
+						last_k_v = k_v;
+					}
+					for (int i = 0; i < delta_len; i++)
+					{
+						string str_key = last_k_v.Key as string;
+						if (str_key != null)
+						{
+							string new_str_key = str_key + "_Fake_Fake_" + i.ToString();
+							dict[new_str_key] = last_k_v.Value;
+						}
+					}
+				}
+				else
+				{
+					return false;
+				}
+			}
+			else
+            {
+				return false;
+            }
+			return true;
 		}
 	}
 }

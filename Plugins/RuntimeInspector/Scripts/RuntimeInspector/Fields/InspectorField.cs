@@ -66,8 +66,14 @@ namespace RuntimeInspectorNamespace
 			get { return m_value; }
 			protected set
 			{
-				try { setter( value ); m_value = value; }
-				catch { }
+				try 
+				{ 
+					setter( value ); 
+					m_value = value;
+				}
+				catch 
+				{
+				}
 			}
 		}
 
@@ -471,7 +477,10 @@ namespace RuntimeInspectorNamespace
 			for( int i = 0; i < elements.Count; i++ )
 				elements[i].Unbind();
 
-			for( int i = 0; i < exposedMethods.Count; i++ )
+			for (int i = 0; i < elements1.Count; i++)
+				elements1[i].Unbind();
+
+			for ( int i = 0; i < exposedMethods.Count; i++ )
 				exposedMethods[i].Unbind();
 
 			elements.Clear();
