@@ -15,6 +15,7 @@ using UnityEngine.InputSystem;
 using Pointer = UnityEngine.InputSystem.Pointer;
 #endif
 using Object = UnityEngine.Object;
+using System.Linq;
 
 namespace RuntimeInspectorNamespace
 {
@@ -551,25 +552,39 @@ namespace RuntimeInspectorNamespace
 #endif
 
 				PropertyInfo[] properties = currType.GetProperties( BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly );
-				for( int j = 0; j < properties.Length; j++ )
+				for (int j = 0; j < properties.Length; j++)
 				{
 					PropertyInfo property = properties[j];
 
 					// Skip properties without a getter or setter function
-					MethodInfo propertyGetter = property.GetGetMethod( true );
-					if( propertyGetter == null || property.GetSetMethod( true ) == null )
+					MethodInfo propertyGetter = property.GetGetMethod(true);
+					if (propertyGetter == null || property.GetSetMethod(true) == null)
 						continue;
 
 					// Skip indexer properties
-					if( property.GetIndexParameters().Length > 0 )
+					if (property.GetIndexParameters().Length > 0)
 						continue;
 
 					// Skip non-serializable types
-					//if( !property.PropertyType.IsSerializable() )
-					//	continue;
+					bool skip = false;
+					if (property.PropertyType.IsGenericType && property.PropertyType.GetInterfaces().Where(
+						(t) =>
+						{
+							Type t_dict = typeof(System.Collections.IDictionary);
+							bool ret = t_dict.IsAssignableFrom(t);
+							return ret;
+						}).Count()>0)
+                    {
+						skip = true;
+                    }
+					if(!skip)
+                    {
+						if (!property.PropertyType.IsSerializable())
+							continue;
+					}
 
-					// Skip obsolete or hidden properties
-					if( property.HasAttribute<ObsoleteAttribute>() || property.HasAttribute<NonSerializedAttribute>() || property.HasAttribute<HideInInspector>() )
+                    // Skip obsolete or hidden properties
+                    if ( property.HasAttribute<ObsoleteAttribute>() || property.HasAttribute<NonSerializedAttribute>() || property.HasAttribute<HideInInspector>() )
 						continue;
 
 					// Skip properties with 'override' keyword (they will appear in parent currTypes)
