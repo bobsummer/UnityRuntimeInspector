@@ -606,9 +606,23 @@ namespace RuntimeInspectorNamespace
 					if( field.IsLiteral || field.IsInitOnly )
 						continue;
 
-					// Skip non-serializable types
-					if( !field.FieldType.IsSerializable() )
-						continue;
+					bool skip = false;
+					if (field.FieldType.IsGenericType && field.FieldType.GetInterfaces().Where(
+						(t) =>
+						{
+							Type t_dict = typeof(System.Collections.IDictionary);
+							bool ret = t_dict.IsAssignableFrom(t);
+							return ret;
+						}).Count() > 0)
+					{
+						skip = true;
+					}
+					if (!skip)
+                    {
+						// Skip non-serializable types
+						if (!field.FieldType.IsSerializable())
+							continue;
+					}
 
 					// Skip obsolete or hidden fields
 					if( field.HasAttribute<ObsoleteAttribute>() || field.HasAttribute<NonSerializedAttribute>() || field.HasAttribute<HideInInspector>() )
