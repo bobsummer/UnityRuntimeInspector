@@ -11,6 +11,17 @@ namespace RuntimeInspectorNamespace
 		public delegate object Getter();
 		public delegate void Setter( object value );
 
+		public virtual bool skipCache()
+        {
+			return false;
+        }
+
+		public Transform drawerParent
+        {
+			set;
+			get;
+        }
+
 #pragma warning disable 0649
 		[SerializeField]
 		protected LayoutElement layoutElement;
@@ -248,7 +259,7 @@ namespace RuntimeInspectorNamespace
 				variableNameText.rectTransform.sizeDelta = new Vector2( -Skin.IndentAmount * Depth, 0f );
 		}
 
-		public virtual void Refresh(bool force=false)
+		public virtual void Refresh()
 		{
 			RefreshValue();
 		}
@@ -521,13 +532,13 @@ namespace RuntimeInspectorNamespace
 			exposedMethods.Clear();
 		}
 
-		public override void Refresh(bool force = false)
+		public override void Refresh()
 		{
 			base.Refresh();
 
 			if( m_isExpanded )
 			{
-				if(force || Length != elements.Count )
+				if(Length != elements.Count )
 					RegenerateElements();
 
 				for( int i = 0; i < elements.Count; i++ )

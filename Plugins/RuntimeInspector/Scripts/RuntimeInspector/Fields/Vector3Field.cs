@@ -160,7 +160,7 @@ namespace RuntimeInspectorNamespace
 			( (RectTransform) inputZ.transform ).SetAnchorMinMaxInputField( labelZ.rectTransform, rightSideAnchorMin, rightSideAnchorMax );
 		}
 
-		public override void Refresh(bool force=false)
+		public override void Refresh()
 		{
 #if UNITY_2017_2_OR_NEWER
 			if( isVector3Int )

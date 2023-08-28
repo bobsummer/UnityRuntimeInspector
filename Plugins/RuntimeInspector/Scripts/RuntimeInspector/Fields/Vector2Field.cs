@@ -138,7 +138,7 @@ namespace RuntimeInspectorNamespace
 			( (RectTransform) inputY.transform ).SetAnchorMinMaxInputField( labelY.rectTransform, rightSideAnchorMin, rightSideAnchorMax );
 		}
 
-		public override void Refresh(bool force = false)
+		public override void Refresh()
 		{
 #if UNITY_2017_2_OR_NEWER
 			if( isVector2Int )

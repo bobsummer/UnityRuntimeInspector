@@ -71,7 +71,7 @@ namespace RuntimeInspectorNamespace
 			( (RectTransform) input.transform ).anchorMin = new Vector2( 1f - inputFieldWidth, 0f );
 		}
 
-		public override void Refresh(bool force = false)
+		public override void Refresh()
 		{
 			base.Refresh();
 			slider.Value = numberHandler.ConvertToFloat( Value );

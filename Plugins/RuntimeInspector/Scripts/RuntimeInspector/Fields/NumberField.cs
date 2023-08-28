@@ -78,7 +78,7 @@ namespace RuntimeInspectorNamespace
 			( (RectTransform) input.transform ).anchorMin = rightSideAnchorMin;
 		}
 
-		public override void Refresh(bool force = false)
+		public override void Refresh()
 		{
 			object prevVal = Value;
 			base.Refresh();

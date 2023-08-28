@@ -117,7 +117,7 @@ namespace RuntimeInspectorNamespace
 			componentsExpandedStates.Clear();
 		}
 
-		public override void Refresh(bool force = false)
+		public override void Refresh()
 		{
 			// Refresh components
 			components.Clear();
