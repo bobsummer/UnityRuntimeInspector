@@ -86,7 +86,7 @@ namespace RuntimeInspectorNamespace
 			inputExtents.Depth = Depth + 1;
 		}
 
-		public override void Refresh()
+		public override void Refresh(bool force = false)
 		{
 			base.Refresh();
 

@@ -91,7 +91,7 @@ namespace RuntimeInspectorNamespace
 			initializeObjectButton.SetSkinButton( Skin );
 		}
 
-		public override void Refresh()
+		public override void Refresh(bool force = false)
 		{
 			base.Refresh();
 

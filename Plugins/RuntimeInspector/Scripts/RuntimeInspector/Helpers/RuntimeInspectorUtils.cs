@@ -577,6 +577,19 @@ namespace RuntimeInspectorNamespace
                     {
 						skip = true;
                     }
+
+					if(!skip)
+                    {
+						if(property.PropertyType.IsGenericType)
+                        {
+							Type t_hash_str = typeof(HashSet<string>);
+							if(t_hash_str==property.PropertyType)
+                            {
+								skip = true;
+                            }
+						}
+                    }
+
 					if(!skip)
                     {
 						if (!property.PropertyType.IsSerializable())

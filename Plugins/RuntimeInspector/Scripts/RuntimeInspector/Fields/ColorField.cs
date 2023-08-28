@@ -65,7 +65,7 @@ namespace RuntimeInspectorNamespace
 			colorPickerArea.anchorMin = rightSideAnchorMin;
 		}
 
-		public override void Refresh()
+		public override void Refresh(bool force = false)
 		{
 			base.Refresh();
 

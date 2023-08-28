@@ -164,7 +164,7 @@ namespace RuntimeInspectorNamespace
 			( (RectTransform) inputW.transform ).SetAnchorMinMaxInputField( labelW.rectTransform, rightSideAnchorMin, new Vector2( rightSideAnchorMax.x, 0.5f ) );
 		}
 
-		public override void Refresh()
+		public override void Refresh(bool force = false)
 		{
 			if( isQuaternion )
 			{

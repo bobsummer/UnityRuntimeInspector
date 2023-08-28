@@ -120,7 +120,7 @@ namespace RuntimeInspectorNamespace
 			}
 		}
 
-		public override void Refresh()
+		public override void Refresh(bool force = false)
 		{
 			object lastValue = Value;
 			base.Refresh();

@@ -7,7 +7,12 @@ namespace RuntimeInspectorNamespace
 {
 	public class StringField : InspectorField
 	{
-		public enum Mode { OnValueChange = 0, OnSubmit = 1 };
+		public enum Mode 
+		{ 
+			OnValueChange = 0, 
+			OnSubmit = 1,
+			Skip = 2,
+		};
 
 #pragma warning disable 0649
 		[SerializeField]
@@ -103,7 +108,7 @@ namespace RuntimeInspectorNamespace
 			( (RectTransform) input.transform ).anchorMin = rightSideAnchorMin;
 		}
 
-		public override void Refresh()
+		public override void Refresh(bool force = false)
 		{
 			base.Refresh();
 

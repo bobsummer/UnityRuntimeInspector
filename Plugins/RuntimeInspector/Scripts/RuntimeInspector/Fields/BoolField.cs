@@ -43,7 +43,7 @@ namespace RuntimeInspectorNamespace
 			( (RectTransform) input.transform ).anchorMin = rightSideAnchorMin;
 		}
 
-		public override void Refresh()
+		public override void Refresh(bool force = false)
 		{
 			base.Refresh();
 			input.isOn = (bool) Value;

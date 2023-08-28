@@ -125,7 +125,7 @@ namespace RuntimeInspectorNamespace
 				Array array = (Array) Value;
 				for( int i = 0; i < array.Length; i++ )
 				{
-					InspectorField elementDrawer = Inspector.CreateDrawerForType( elementType, drawArea, Depth + 1 );
+					InspectorField elementDrawer = Inspector.CreateDrawerForType( elementType, activeDrawArea, Depth + 1 );
 					if( elementDrawer == null )
 						break;
 
@@ -149,7 +149,7 @@ namespace RuntimeInspectorNamespace
 				IList list = (IList) Value;
 				for( int i = 0; i < list.Count; i++ )
 				{
-					InspectorField elementDrawer = Inspector.CreateDrawerForType( elementType, drawArea, Depth + 1 );
+					InspectorField elementDrawer = Inspector.CreateDrawerForType( elementType, activeDrawArea, Depth + 1 );
 					if( elementDrawer == null )
 						break;
 

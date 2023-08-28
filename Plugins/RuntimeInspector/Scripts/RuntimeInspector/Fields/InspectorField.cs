@@ -248,7 +248,7 @@ namespace RuntimeInspectorNamespace
 				variableNameText.rectTransform.sizeDelta = new Vector2( -Skin.IndentAmount * Depth, 0f );
 		}
 
-		public virtual void Refresh()
+		public virtual void Refresh(bool force=false)
 		{
 			RefreshValue();
 		}
@@ -280,6 +280,11 @@ namespace RuntimeInspectorNamespace
 		protected RectTransform drawArea;
 
 		[SerializeField]
+		protected RectTransform gridDrawArea;
+
+		public bool useGrid = false;
+
+		[SerializeField]
 		private PointerEventListener expandToggle;
 		private RectTransform expandToggleTransform;
 
@@ -289,6 +294,21 @@ namespace RuntimeInspectorNamespace
 		[SerializeField]
 		private Image expandArrow; // Expand Arrow's sprite should look right at 0 rotation
 #pragma warning restore 0649
+
+		protected RectTransform activeDrawArea
+        {
+			get
+            {
+				if(useGrid)
+                {
+					return gridDrawArea == null ? drawArea : gridDrawArea;
+                }
+				else
+                {
+					return drawArea;
+                }
+            }
+        }
 
 		protected readonly List<InspectorField> elements = new List<InspectorField>(8);
 
@@ -307,7 +327,7 @@ namespace RuntimeInspectorNamespace
 			set
 			{
 				m_isExpanded = value;
-				drawArea.gameObject.SetActive( m_isExpanded );
+				activeDrawArea.gameObject.SetActive( m_isExpanded );
 
 				if( expandArrow != null )
 					expandArrow.rectTransform.localEulerAngles = m_isExpanded ? new Vector3( 0f, 0f, -90f ) : Vector3.zero;
@@ -395,7 +415,14 @@ namespace RuntimeInspectorNamespace
 			base.OnInspectorChanged();
 
 			for( int i = 0; i < elements.Count; i++ )
+            {
 				elements[i].Inspector = Inspector;
+			}				
+
+			for(int i=0;i<elements1.Count;i++)
+            {
+				elements1[i].Inspector = Inspector;
+            }				
 		}
 
 		protected override void OnSkinChanged()
@@ -424,7 +451,10 @@ namespace RuntimeInspectorNamespace
 			for( int i = 0; i < elements.Count; i++ )
 				elements[i].Skin = Skin;
 
-			for( int i = 0; i < exposedMethods.Count; i++ )
+			for (int i = 0; i < elements1.Count; i++)
+				elements1[i].Skin = Skin;
+
+			for ( int i = 0; i < exposedMethods.Count; i++ )
 				exposedMethods[i].Skin = Skin;
 		}
 
@@ -436,19 +466,22 @@ namespace RuntimeInspectorNamespace
 
 			for( int i = 0; i < elements.Count; i++ )
 				elements[i].Depth = Depth + 1;
+
+			for (int i = 0; i < elements1.Count; i++)
+				elements1[i].Depth = Depth + 1;
 		}
 
 		protected void RegenerateElements()
 		{
-			if( elements.Count > 0 || exposedMethods.Count > 0 )
+			if( elements.Count > 0 || elements1.Count > 0 || exposedMethods.Count > 0 )
 				ClearElements();
 
 			if( Depth < Inspector.NestLimit )
 			{
-				drawArea.gameObject.SetActive( true );
+				activeDrawArea.gameObject.SetActive( true );
 				GenerateElements();
 				GenerateExposedMethodButtons();
-				drawArea.gameObject.SetActive( m_isExpanded );
+				activeDrawArea.gameObject.SetActive( m_isExpanded );
 			}
 		}
 
@@ -488,13 +521,13 @@ namespace RuntimeInspectorNamespace
 			exposedMethods.Clear();
 		}
 
-		public override void Refresh()
+		public override void Refresh(bool force = false)
 		{
 			base.Refresh();
 
 			if( m_isExpanded )
 			{
-				if( Length != elements.Count )
+				if(force || Length != elements.Count )
 					RegenerateElements();
 
 				for( int i = 0; i < elements.Count; i++ )
@@ -515,7 +548,7 @@ namespace RuntimeInspectorNamespace
 
 		public InspectorField CreateDrawerForComponent( Component component, string variableName = null )
 		{
-			InspectorField variableDrawer = Inspector.CreateDrawerForType( component.GetType(), drawArea, Depth + 1, false );
+			InspectorField variableDrawer = Inspector.CreateDrawerForType( component.GetType(), activeDrawArea, Depth + 1, false );
 			if( variableDrawer != null )
 			{
 				if( variableName == null )
@@ -533,7 +566,7 @@ namespace RuntimeInspectorNamespace
 		public InspectorField CreateDrawerForVariable( MemberInfo variable, string variableName = null )
 		{
 			Type variableType = variable is FieldInfo ? ( (FieldInfo) variable ).FieldType : ( (PropertyInfo) variable ).PropertyType;
-			InspectorField variableDrawer = Inspector.CreateDrawerForType( variableType, drawArea, Depth + 1, true, variable );
+			InspectorField variableDrawer = Inspector.CreateDrawerForType( variableType, activeDrawArea, Depth + 1, true, variable );
 			if( variableDrawer != null )
 			{
 				variableDrawer.BindTo( this, variable, variableName == null ? null : string.Empty );
@@ -548,7 +581,7 @@ namespace RuntimeInspectorNamespace
 
 		public InspectorField CreateDrawer( Type variableType, string variableName, Getter getter, Setter setter, bool drawObjectsAsFields = true )
 		{
-			InspectorField variableDrawer = Inspector.CreateDrawerForType( variableType, drawArea, Depth + 1, drawObjectsAsFields );
+			InspectorField variableDrawer = Inspector.CreateDrawerForType( variableType, activeDrawArea, Depth + 1, drawObjectsAsFields );
 			if( variableDrawer != null )
 			{
 				variableDrawer.BindTo( variableType, variableName == null ? null : string.Empty, getter, setter );
@@ -563,7 +596,7 @@ namespace RuntimeInspectorNamespace
 
 		public ExposedMethodField CreateExposedMethodButton( ExposedMethod method, Getter getter, Setter setter )
 		{
-			ExposedMethodField methodDrawer = (ExposedMethodField) Inspector.CreateDrawerForType( typeof( ExposedMethod ), drawArea, Depth + 1, false );
+			ExposedMethodField methodDrawer = (ExposedMethodField) Inspector.CreateDrawerForType( typeof( ExposedMethod ), activeDrawArea, Depth + 1, false );
 			if( methodDrawer != null )
 			{
 				methodDrawer.BindTo( typeof( ExposedMethod ), string.Empty, getter, setter );
