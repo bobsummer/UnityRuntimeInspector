@@ -11,11 +11,6 @@ namespace RuntimeInspectorNamespace
 		public delegate object Getter();
 		public delegate void Setter( object value );
 
-		public virtual bool skipCache()
-        {
-			return false;
-        }
-
 		public Transform drawerParent
         {
 			set;
@@ -405,11 +400,19 @@ namespace RuntimeInspectorNamespace
 			expandToggle.PointerClick += ( eventData ) =>
 			{
 				if( m_headerVisibility == RuntimeInspector.HeaderVisibility.Collapsible )
+                {
 					IsExpanded = !m_isExpanded;
+					OnExpandChanged();
+				}					
 			};
 
 			IsExpanded = m_isExpanded;
 		}
+
+		protected virtual void OnExpandChanged()
+        {
+
+        }
 
 		protected override void OnUnbound()
 		{

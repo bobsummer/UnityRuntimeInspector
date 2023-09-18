@@ -10,6 +10,10 @@ namespace RuntimeInspectorNamespace
 {
 	public class RuntimeInspector : SkinnedWindow, ITooltipManager
 	{
+		public static HashSet<Type> s_SkipCacheTypes = new HashSet<Type>();
+
+		public static Dictionary<Type, List<string>> s_SkipMethods = new Dictionary<Type, List<string>>();
+
 		public enum VariableVisibility { None = 0, SerializableOnly = 1, All = 2 };
 		public enum HeaderVisibility { Collapsible = 0, AlwaysVisible = 1, Hidden = 2 };
 
@@ -599,16 +603,7 @@ namespace RuntimeInspectorNamespace
 
 			cachedResult = eligibleDrawers.Count > 0 ? eligibleDrawers.ToArray() : null;
 
-			bool skip = false;
-			foreach(var c_r in cachedResult)
-            {
-				if(c_r.skipCache())
-                {
-					skip = true;
-					break;
-                }
-            }
-			if(!skip)
+			if(!s_SkipCacheTypes.Contains(type))
 				drawersDict[type] = cachedResult;
 
 			return cachedResult;

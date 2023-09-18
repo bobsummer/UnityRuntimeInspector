@@ -702,10 +702,19 @@ namespace RuntimeInspectorNamespace
 			return result;
 		}
 
+
 		public static ExposedMethod[] GetExposedMethods( this Type type )
 		{
+			List<string> skipped_methods = null;
+			if(RuntimeInspector.s_SkipMethods.ContainsKey(type))
+            {
+				skipped_methods = RuntimeInspector.s_SkipMethods[type];
+            }
+
+			bool skip_cache = RuntimeInspector.s_SkipCacheTypes.Contains(type);
+
 			ExposedMethod[] result;
-			if( !typeToExposedMethods.TryGetValue( type, out result ) )
+			if(skip_cache || !typeToExposedMethods.TryGetValue( type, out result ) )
 			{
 				MethodInfo[] methods = type.GetMethods( BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static );
 
@@ -718,7 +727,11 @@ namespace RuntimeInspectorNamespace
 					if( methods[i].GetParameters().Length != 0 )
 						continue;
 
+					if (skipped_methods != null && skipped_methods.Contains(methods[i].Name))
+						continue;
+
 					RuntimeInspectorButtonAttribute attribute = methods[i].GetAttribute<RuntimeInspectorButtonAttribute>();
+
 					if( !attribute.IsInitializer || type.IsAssignableFrom( methods[i].ReturnType ) )
 						exposedMethodsList.Add( new ExposedMethod( methods[i], attribute, false ) );
 				}
@@ -735,7 +748,8 @@ namespace RuntimeInspectorNamespace
 				else
 					result = null;
 
-				typeToExposedMethods[type] = result;
+				if(!skip_cache)
+					typeToExposedMethods[type] = result;
 			}
 
 			return result;

@@ -58,6 +58,8 @@ namespace RuntimeInspectorNamespace
 			sizeInput.OnValueSubmitted += OnSizeChanged;
 			sizeInput.DefaultEmptyValue = "0";
 			sizeInput.CacheTextOnValueChange = false;
+
+			sizeLayoutElement.gameObject.SetActive(false);
 		}
 
 		public override bool SupportsType( Type type )
@@ -68,6 +70,11 @@ namespace RuntimeInspectorNamespace
 #else
 				( type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof( List<> ) );
 #endif
+		}
+
+		protected override void OnExpandChanged()
+		{
+			sizeLayoutElement.gameObject.SetActive(IsExpanded);
 		}
 
 		protected override void OnBound( MemberInfo variable )

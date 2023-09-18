@@ -6,7 +6,6 @@ using System.Reflection;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using Object = UnityEngine.Object;
 using System.Linq;
 
 namespace RuntimeInspectorNamespace
@@ -109,7 +108,7 @@ namespace RuntimeInspectorNamespace
 			base.ClearElements();
 		}
 
-		readonly static string cFakeFake = "_Fake_Fake_";
+		readonly static string cNewKey = "NewKey";
 
 		protected override void GenerateElements()
 		{
@@ -167,7 +166,7 @@ namespace RuntimeInspectorNamespace
 
 						if (old_key != null && new_key != null)
 						{
-							if (old_key.Contains(cFakeFake))
+							//if (old_key.Contains(cNewKey))
 							{
 								var old_val = dict[old_key];
 								dict[new_key] = old_val;
@@ -230,10 +229,11 @@ namespace RuntimeInspectorNamespace
 			int value;
 			if (int.TryParse(input, NumberStyles.Integer, RuntimeInspectorUtils.numberFormat, out value) && value >= 0)
 			{
+				IDictionary dict = (IDictionary)Value;
 				int delta_len = value - Length;
 				if (delta_len > 0)
 				{
-					IDictionary dict = (IDictionary)Value;
+					
 					DictionaryEntry last_k_v;
 					foreach (DictionaryEntry k_v in dict)
 					{
@@ -242,16 +242,23 @@ namespace RuntimeInspectorNamespace
 					for (int i = 0; i < delta_len; i++)
 					{
 						string str_key = last_k_v.Key as string;
+						string new_str_key = cNewKey;
 						if (str_key != null)
 						{
-							string new_str_key = str_key + "_Fake_Fake_" + i.ToString();
-							dict[new_str_key] = last_k_v.Value;
+							new_str_key = str_key + "_" + cNewKey + "_" + i.ToString();							
 						}
+						dict[new_str_key] = null;
 					}
 				}
 				else
 				{
-					return false;
+					List<string> keys = ((IEnumerable<string>)dict.Keys).ToList();
+					var to_remove_keys = keys.Skip(value);
+
+					foreach(var key in to_remove_keys)
+                    {
+						dict.Remove(key);
+                    }
 				}
 			}
 			else

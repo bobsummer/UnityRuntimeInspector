@@ -53,6 +53,9 @@ namespace RuntimeInspectorNamespace
 		private LayoutElement rgbaLayoutElement;
 
 		[SerializeField]
+		private BoundInputField hexInput;
+
+		[SerializeField]
 		private LayoutElement buttonsLayoutElement;
 
 		[SerializeField]
@@ -75,6 +78,8 @@ namespace RuntimeInspectorNamespace
 			gInput.Initialize();
 			bInput.Initialize();
 			aInput.Initialize();
+
+			hexInput.Initialize();
 
 			cancelButton.onClick.AddListener( Cancel );
 			okButton.onClick.AddListener( () =>
@@ -103,15 +108,20 @@ namespace RuntimeInspectorNamespace
 			bInput.DefaultEmptyValue = "0";
 			aInput.DefaultEmptyValue = "0";
 
+			hexInput.DefaultEmptyValue = "0x00000000";
+
 			rInput.Skin = Skin;
 			gInput.Skin = Skin;
 			bInput.Skin = Skin;
 			aInput.Skin = Skin;
+			hexInput.Skin = Skin;
 
 			rInput.OnValueChanged += OnRGBAChanged;
 			gInput.OnValueChanged += OnRGBAChanged;
 			bInput.OnValueChanged += OnRGBAChanged;
 			aInput.OnValueChanged += OnRGBAChanged;
+
+			hexInput.OnValueChanged += OnHEXChanged;
 
 			OnSelectedColorChanged( colorWheel.Color );
 		}
@@ -177,6 +187,8 @@ namespace RuntimeInspectorNamespace
 			bInput.Skin = Skin;
 			aInput.Skin = Skin;
 
+			hexInput.Skin = Skin;
+
 			cancelButton.SetSkinButton( Skin );
 			okButton.SetSkinButton( Skin );
 		}
@@ -189,6 +201,8 @@ namespace RuntimeInspectorNamespace
 			aInput.Text = color.a.ToString( RuntimeInspectorUtils.numberFormat );
 
 			alphaSlider.Color = color;
+
+			refreshHexInput(color);
 
 			try
 			{
@@ -209,6 +223,8 @@ namespace RuntimeInspectorNamespace
 			Color color = colorWheel.Color;
 			color.a = alpha;
 
+			refreshHexInput(color);
+
 			try
 			{
 				if( onColorChanged != null )
@@ -218,6 +234,12 @@ namespace RuntimeInspectorNamespace
 			{
 				Debug.LogException( e );
 			}
+		}
+
+		private void refreshHexInput(Color32 color)
+        {
+			string color_hex = color.r.ToString("X2") + color.g.ToString("X2") + color.b.ToString("X2") + color.a.ToString("X2");
+			hexInput.Text = color_hex;
 		}
 
 		private bool OnRGBAChanged( BoundInputField source, string input )
@@ -238,6 +260,8 @@ namespace RuntimeInspectorNamespace
 					alphaSlider.Value = value / 255f;
 				}
 
+				refreshHexInput(color);
+
 				alphaSlider.Color = color;
 				colorWheel.PickColor( color );
 				return true;
@@ -245,6 +269,31 @@ namespace RuntimeInspectorNamespace
 
 			return false;
 		}
+
+		private bool OnHEXChanged(BoundInputField source, string input)
+		{
+			int color_hex;
+			if (int.TryParse(input, NumberStyles.HexNumber, null, out color_hex))
+            {
+				Color32 color = new Color32
+				(
+					(byte)((color_hex >> 24) & 0xFF),
+				    (byte)((color_hex >> 16) & 0xFF),
+				    (byte)((color_hex >> 8) & 0xFF),
+				    (byte)(color_hex & 0xFF)
+				);
+
+				rInput.Text = color.r.ToString();
+				gInput.Text = color.g.ToString();
+				bInput.Text = color.b.ToString();
+				aInput.Text = color.a.ToString();
+
+				alphaSlider.Value = color.a / 255f;
+				alphaSlider.Color = color;
+				colorWheel.PickColor(color);
+			}
+			return false;
+        }
 
 		public static void DestroyInstance()
 		{
