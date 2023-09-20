@@ -23,6 +23,14 @@ namespace RuntimeInspectorNamespace
 		private BoundInputField sizeInput;
 #pragma warning restore 0649
 
+		public LayoutElement theSizeLayoutElement
+        {
+			get
+            {
+				return sizeLayoutElement;
+            }
+        }
+
 		private bool isArray;
 		private Type elementType;
 
@@ -74,7 +82,8 @@ namespace RuntimeInspectorNamespace
 
 		protected override void OnExpandChanged()
 		{
-			sizeLayoutElement.gameObject.SetActive(IsExpanded);
+			if(canEdit)
+				sizeLayoutElement.gameObject.SetActive(IsExpanded);
 		}
 
 		protected override void OnBound( MemberInfo variable )

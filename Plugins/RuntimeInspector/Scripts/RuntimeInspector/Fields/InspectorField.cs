@@ -281,14 +281,15 @@ namespace RuntimeInspectorNamespace
 
 	public abstract class ExpandableInspectorField : InspectorField
 	{
+		public bool useGrid = false;
+		public bool canEdit = true;
+
 #pragma warning disable 0649
 		[SerializeField]
 		protected RectTransform drawArea;
 
 		[SerializeField]
 		protected RectTransform gridDrawArea;
-
-		public bool useGrid = false;
 
 		[SerializeField]
 		private PointerEventListener expandToggle;
