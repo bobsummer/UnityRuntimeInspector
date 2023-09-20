@@ -518,8 +518,23 @@ namespace RuntimeInspectorNamespace
 
 		public static MemberInfo[] GetAllVariables( this Type type )
 		{
-			MemberInfo[] result;
-			if( typeToVariables.TryGetValue( type, out result ) )
+			List<string> black_vars = null;
+			if (RuntimeInspector.s_BlackVars.ContainsKey(type))
+			{
+				black_vars = RuntimeInspector.s_BlackVars[type];
+			}
+
+			List<string> white_vars = null;
+			if (RuntimeInspector.s_WhiteVars.ContainsKey(type))
+			{
+				white_vars = RuntimeInspector.s_WhiteVars[type];
+			}
+
+			bool skip_cache = RuntimeInspector.s_SkipCacheTypes.Contains(type);
+
+			MemberInfo[] result = null;
+
+			if(!skip_cache && typeToVariables.TryGetValue( type, out result ) )
 				return result;
 
 			validVariablesList.Clear();
@@ -563,6 +578,12 @@ namespace RuntimeInspectorNamespace
 
 					// Skip indexer properties
 					if (property.GetIndexParameters().Length > 0)
+						continue;
+
+					if (black_vars != null && black_vars.Contains(property.Name))
+						continue;
+
+					if (white_vars != null && !white_vars.Contains(property.Name))
 						continue;
 
 					// Skip non-serializable types
@@ -617,6 +638,12 @@ namespace RuntimeInspectorNamespace
 
 					// Skip readonly or constant fields
 					if( field.IsLiteral || field.IsInitOnly )
+						continue;
+
+					if (black_vars != null && black_vars.Contains(field.Name))
+						continue;
+
+					if (white_vars != null && !white_vars.Contains(field.Name))
 						continue;
 
 					bool skip = false;
@@ -696,7 +723,8 @@ namespace RuntimeInspectorNamespace
 
 				// Cache found variables along the way
 				result = validVariablesList.Count > 0 ? validVariablesList.ToArray() : null;
-				typeToVariables[currType] = result;
+				if(!skip_cache)
+					typeToVariables[currType] = result;
 			}
 
 			return result;
@@ -705,11 +733,17 @@ namespace RuntimeInspectorNamespace
 
 		public static ExposedMethod[] GetExposedMethods( this Type type )
 		{
-			List<string> skipped_methods = null;
-			if(RuntimeInspector.s_SkipMethods.ContainsKey(type))
+			List<string> black_methods = null;
+			if(RuntimeInspector.s_BlackMethods.ContainsKey(type))
             {
-				skipped_methods = RuntimeInspector.s_SkipMethods[type];
+				black_methods = RuntimeInspector.s_BlackMethods[type];
             }
+			
+			List<string> white_methods = null;
+			if (RuntimeInspector.s_WhiteMethods.ContainsKey(type))
+			{
+				white_methods = RuntimeInspector.s_WhiteMethods[type];
+			}
 
 			bool skip_cache = RuntimeInspector.s_SkipCacheTypes.Contains(type);
 
@@ -727,7 +761,10 @@ namespace RuntimeInspectorNamespace
 					if( methods[i].GetParameters().Length != 0 )
 						continue;
 
-					if (skipped_methods != null && skipped_methods.Contains(methods[i].Name))
+					if (black_methods != null && black_methods.Contains(methods[i].Name))
+						continue;
+
+					if (white_methods != null && !white_methods.Contains(methods[i].Name))
 						continue;
 
 					RuntimeInspectorButtonAttribute attribute = methods[i].GetAttribute<RuntimeInspectorButtonAttribute>();

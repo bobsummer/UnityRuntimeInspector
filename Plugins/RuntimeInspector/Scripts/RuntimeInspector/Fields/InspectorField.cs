@@ -70,7 +70,7 @@ namespace RuntimeInspectorNamespace
 		public object Value
 		{
 			get { return m_value; }
-			protected set
+			set
 			{
 				try 
 				{ 

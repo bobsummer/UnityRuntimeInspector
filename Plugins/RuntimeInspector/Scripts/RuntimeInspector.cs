@@ -12,7 +12,11 @@ namespace RuntimeInspectorNamespace
 	{
 		public static HashSet<Type> s_SkipCacheTypes = new HashSet<Type>();
 
-		public static Dictionary<Type, List<string>> s_SkipMethods = new Dictionary<Type, List<string>>();
+		public static Dictionary<Type, List<string>> s_BlackMethods = new Dictionary<Type, List<string>>();
+		public static Dictionary<Type, List<string>> s_WhiteMethods = new Dictionary<Type, List<string>>();
+
+		public static Dictionary<Type, List<string>> s_BlackVars = new Dictionary<Type, List<string>>();
+		public static Dictionary<Type, List<string>> s_WhiteVars = new Dictionary<Type, List<string>>();
 
 		public enum VariableVisibility { None = 0, SerializableOnly = 1, All = 2 };
 		public enum HeaderVisibility { Collapsible = 0, AlwaysVisible = 1, Hidden = 2 };
