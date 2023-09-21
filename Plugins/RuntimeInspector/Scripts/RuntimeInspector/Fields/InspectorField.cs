@@ -281,7 +281,9 @@ namespace RuntimeInspectorNamespace
 
 	public abstract class ExpandableInspectorField : InspectorField
 	{
+		[NonSerialized]
 		public bool useGrid = false;
+		[NonSerialized]
 		public bool canEdit = true;
 
 #pragma warning disable 0649
