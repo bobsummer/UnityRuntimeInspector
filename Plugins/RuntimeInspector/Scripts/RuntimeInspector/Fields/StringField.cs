@@ -2,6 +2,7 @@
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.UI;
+using System.ComponentModel;
 
 namespace RuntimeInspectorNamespace
 {
@@ -64,9 +65,15 @@ namespace RuntimeInspectorNamespace
 					lineCount = 3;
 				else
 					lineCount = 1;
+
+				ReadOnlyAttribute readOnly_attribute = variable.GetAttribute<ReadOnlyAttribute>();
+				if (readOnly_attribute != null && readOnly_attribute.IsReadOnly)
+				{
+					SetterMode = Mode.Skip;
+				}
 			}
 
-			if( prevLineCount != lineCount )
+			if ( prevLineCount != lineCount )
 			{
 				input.BackingField.lineType = lineCount > 1 ? InputField.LineType.MultiLineNewline : InputField.LineType.SingleLine;
 				input.BackingField.textComponent.alignment = lineCount > 1 ? TextAnchor.UpperLeft : TextAnchor.MiddleLeft;

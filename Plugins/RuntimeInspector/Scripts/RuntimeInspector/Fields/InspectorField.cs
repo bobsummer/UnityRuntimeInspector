@@ -516,7 +516,12 @@ namespace RuntimeInspectorNamespace
 				for( int i = 0; i < methods.Length; i++ )
 				{
 					ExposedMethod method = methods[i];
-					if( ( isInitialized && method.VisibleWhenInitialized ) || ( !isInitialized && method.VisibleWhenUninitialized ) )
+
+					bool init_check = isInitialized && method.VisibleWhenInitialized;
+					bool uninit_check = !isInitialized && method.VisibleWhenUninitialized;
+					bool final_check = init_check || uninit_check;
+
+					if(final_check)
 						CreateExposedMethodButton( method, () => Value, ( value ) => Value = value );
 				}
 			}
